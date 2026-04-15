@@ -38,6 +38,12 @@ func Execute() {
 	}
 }
 
+// AddCommand registers a subcommand with the root command.
+// This is a convenience wrapper used by subpackages during init.
+func AddCommand(cmd *cobra.Command) {
+	rootCmd.AddCommand(cmd)
+}
+
 func init() {
 	rootCmd.PersistentFlags().StringVar(
 		&cfgFile, "config", "",
