@@ -13,6 +13,7 @@ import (
 var (
 	auditService string
 	auditEvent   string
+	auditLimit   int
 )
 
 var auditCmd = &cobra.Command{
@@ -42,6 +43,11 @@ var auditCmd = &cobra.Command{
 			return nil
 		}
 
+		// Apply limit after filtering, showing the most recent entries.
+		if auditLimit > 0 && len(entries) > auditLimit {
+			entries = entries[len(entries)-auditLimit:]
+		}
+
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintln(w, "TIMESTAMP\tSERVICE\tEVENT\tMESSAGE")
 		for _, e := range entries {
@@ -60,4 +66,5 @@ func init() {
 	rootCmd.AddCommand(auditCmd)
 	auditCmd.Flags().StringVarP(&auditService, "service", "s", "", "Filter by service name")
 	auditCmd.Flags().StringVarP(&auditEvent, "event", "e", "", "Filter by event type (e.g. key.created, key.rotated)")
+	auditCmd.Flags().IntVarP(&auditLimit, "limit", "n", 0, "Limit output to the N most recent entries (0 means no limit)")
 }
