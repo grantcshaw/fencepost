@@ -94,6 +94,15 @@ func (s *Store) List() []Entry {
 	return list
 }
 
+// Has reports whether an entry exists for the given service.
+func (s *Store) Has(service string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	_, ok := s.entries[service]
+	return ok
+}
+
 func (s *Store) load() error {
 	data, err := os.ReadFile(s.path)
 	if err != nil {
