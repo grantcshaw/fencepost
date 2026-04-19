@@ -23,6 +23,16 @@ func (p ExpiryPolicy) IsExpired(entry Entry) bool {
 	return time.Since(entry.CreatedAt) > p.MaxAge
 }
 
+// TimeUntilExpiry returns the duration remaining before the entry expires
+// under this policy. A negative value means the entry is already expired.
+// If CreatedAt is zero, the maximum duration is returned.
+func (p ExpiryPolicy) TimeUntilExpiry(entry Entry) time.Duration {
+	if entry.CreatedAt.IsZero() {
+		return time.Duration(1<<63 - 1)
+	}
+	return p.MaxAge - time.Since(entry.CreatedAt)
+}
+
 // ExpiredKeys returns the service names whose keys have exceeded the policy
 // maximum age.
 func ExpiredKeys(store *Store, policy ExpiryPolicy) []string {
