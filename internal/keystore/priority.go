@@ -8,11 +8,27 @@ import (
 type Priority int
 
 const (
-	PriorityLow    Priority = 1
-	PriorityNormal Priority = 2
-	PriorityHigh   Priority = 3
+	PriorityLow      Priority = 1
+	PriorityNormal   Priority = 2
+	PriorityHigh     Priority = 3
 	PriorityCritical Priority = 4
 )
+
+// String returns a human-readable name for the priority level.
+func (p Priority) String() string {
+	switch p {
+	case PriorityLow:
+		return "low"
+	case PriorityNormal:
+		return "normal"
+	case PriorityHigh:
+		return "high"
+	case PriorityCritical:
+		return "critical"
+	default:
+		return fmt.Sprintf("unknown(%d)", int(p))
+	}
+}
 
 func (s *Store) SetPriority(service string, p Priority) error {
 	s.mu.Lock()
