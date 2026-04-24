@@ -48,7 +48,11 @@ var flagUnsetCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return ks.UnsetFlag(args[0], args[1])
+		if err := ks.UnsetFlag(args[0], args[1]); err != nil {
+			return err
+		}
+		fmt.Fprintf(os.Stdout, "flag %q removed from %q\n", args[1], args[0])
+		return nil
 	},
 }
 
@@ -65,7 +69,12 @@ var flagListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, svc := range ks.ServicesByFlag(args[0]) {
+		svcs := ks.ServicesByFlag(args[0])
+		if len(svcs) == 0 {
+			fmt.Fprintf(os.Stdout, "no services found with flag %q\n", args[0])
+			return nil
+		}
+		for _, svc := range svcs {
 			fmt.Println(svc)
 		}
 		return nil
