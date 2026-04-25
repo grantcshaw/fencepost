@@ -57,3 +57,12 @@ func TestRotationCountReset_AfterIncrements(t *testing.T) {
 		t.Errorf("expected 0 after reset, got %d", count)
 	}
 }
+
+func TestRotationCountGet_UnknownKey(t *testing.T) {
+	s := newRotationCountTestStore(t)
+
+	_, err := s.GetRotationCount("nonexistent")
+	if err == nil {
+		t.Error("expected error for unknown key, got nil")
+	}
+}
