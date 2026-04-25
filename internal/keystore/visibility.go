@@ -10,6 +10,12 @@ const (
 	VisibilityInternal Visibility = "internal"
 )
 
+// isValidVisibility returns true if v is one of the recognized visibility values.
+func isValidVisibility(v Visibility) bool {
+	return v == VisibilityPublic || v == VisibilityPrivate || v == VisibilityInternal
+}
+
+// SetVisibility updates the visibility of the given service entry.
 func (ks *KeyStore) SetVisibility(service string, v Visibility) error {
 	ks.mu.Lock()
 	defer ks.mu.Unlock()
@@ -19,7 +25,7 @@ func (ks *KeyStore) SetVisibility(service string, v Visibility) error {
 		return fmt.Errorf("service %q not found", service)
 	}
 
-	if v != VisibilityPublic && v != VisibilityPrivate && v != VisibilityInternal {
+	if !isValidVisibility(v) {
 		return fmt.Errorf("invalid visibility %q: must be public, private, or internal", v)
 	}
 
@@ -28,6 +34,8 @@ func (ks *KeyStore) SetVisibility(service string, v Visibility) error {
 	return ks.save()
 }
 
+// GetVisibility returns the visibility of the given service entry.
+// If no visibility has been set, it defaults to VisibilityPrivate.
 func (ks *KeyStore) GetVisibility(service string) (Visibility, error) {
 	ks.mu.RLock()
 	defer ks.mu.RUnlock()
@@ -43,6 +51,8 @@ func (ks *KeyStore) GetVisibility(service string) (Visibility, error) {
 	return Visibility(entry.Visibility), nil
 }
 
+// ServicesByVisibility returns a sorted list of service names whose effective
+// visibility matches v. Services with no visibility set are treated as private.
 func (ks *KeyStore) ServicesByVisibility(v Visibility) ([]string, error) {
 	ks.mu.RLock()
 	defer ks.mu.RUnlock()
