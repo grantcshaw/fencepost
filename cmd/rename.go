@@ -20,6 +20,10 @@ var renameCmd = &cobra.Command{
 		oldName := args[0]
 		newName := args[1]
 
+		if oldName == newName {
+			return fmt.Errorf("old name and new name are the same: %q", oldName)
+		}
+
 		cfg, err := config.Load(cfgFile)
 		if err != nil {
 			return fmt.Errorf("loading config: %w", err)
@@ -42,7 +46,7 @@ var renameCmd = &cobra.Command{
 			return fmt.Errorf("writing audit log: %w", err)
 		}
 
-		fmt.Printf("Renamed %q → %q\n", oldName, newName)
+		fmt.Printf("Renamed %q \u2192 %q\n", oldName, newName)
 		return nil
 	},
 }
