@@ -63,3 +63,24 @@ func (s *Store) ServicesByMaxRetries(retries int) []string {
 	sort.Strings(results)
 	return results
 }
+
+// IncrementMaxRetries increases the max retries for a service by the given delta.
+// The delta must be positive and the resulting value must not overflow to a negative number.
+func (s *Store) IncrementMaxRetries(service string, delta int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if delta <= 0 {
+		return fmt.Errorf("delta must be positive, got %d", delta)
+	}
+	entry, ok := s.data.Entries[service]
+	if !ok {
+		return fmt.Errorf("service %q not found", service)
+	}
+	entry.MaxRetries += delta
+	if entry.MaxRetries < 0 {
+		return fmt.Errorf("max retries overflow for service %q", service)
+	}
+	s.data.Entries[service] = entry
+	return s.save()
+}
